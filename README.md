@@ -1,4 +1,9 @@
-This is a [Plasmo extension](https://docs.plasmo.com/) project bootstrapped with [`plasmo init`](https://www.npmjs.com/package/plasmo).
+一个Obsidian Clipper插件，用来剪裁网页内容到软件里
+使用Plasmo搭建
+
+要求：
+1. Git
+2. nodejs >= 16
 
 ## Getting Started
 
