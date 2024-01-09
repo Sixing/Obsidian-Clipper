@@ -1,10 +1,10 @@
 import TurndownService from 'Turndown';
 
-
 const loadResource = async () => {
     const vault = "";
+    let date, published;
     const { obsidianClipper } = await chrome.storage.sync.get(['obsidianClipper']);
-    const { category, tag, theme } = obsidianClipper; // 分类，标签，主题
+    const { category, tag, theme, authorBrackets: inputAuthor, title: inputTitle, url } = obsidianClipper; // 分类，标签，主题
     /* Optional folder name such as "Clippings/" */
     const folder =  `${category}/` || "Clippings/";
 
@@ -45,10 +45,11 @@ const loadResource = async () => {
     const selection = getSelectionHtml();
 
     const {
-        title,
+        title: articleTitle,
         byline,
         content
     } = new Readability(document.cloneNode(true)).parse();
+    const title = inputTitle || articleTitle;
 
     function getFileName(fileName) {
         var userAgent = window.navigator.userAgent,
@@ -84,19 +85,6 @@ const loadResource = async () => {
         emDelimiter: '*',
     }).turndown(markdownify);
 
-    var date = new Date();
-
-    function convertDate(date) {
-        var yyyy = date.getFullYear().toString();
-        var mm = (date.getMonth()+1).toString();
-        var dd = date.getDate().toString();
-        var mmChars = mm.split('');
-        var ddChars = dd.split('');
-        return yyyy + '-' + (mmChars[1]?mm:"0"+mmChars[0]) + '-' + (ddChars[1]?dd:"0"+ddChars[0]);
-    }
-
-    const today = convertDate(date);
-
     // Utility function to get meta content by name or property
     function getMetaContent(attr, value) {
         var element = document.querySelector(`meta[${attr}='${value}']`);
@@ -104,7 +92,7 @@ const loadResource = async () => {
     }
 
     // Fetch byline, meta author, property author, or site name
-    var author = byline || getMetaContent("name", "author") || getMetaContent("property", "author") || getMetaContent("property", "og:site_name");
+    var author = inputAuthor || byline || getMetaContent("name", "author") || getMetaContent("property", "author") || getMetaContent("property", "og:site_name");
 
     // Check if there's an author and add brackets
     var authorBrackets = author ? `"[[${author}]]"` : "";
@@ -114,35 +102,98 @@ const loadResource = async () => {
     var timeElement = document.querySelector("time");
     var publishedDate = timeElement ? timeElement.getAttribute("datetime") : "";
 
-    if (publishedDate && publishedDate.trim() !== "") {
-        date = new Date(publishedDate);
-        var year = date.getFullYear();
-        var month = date.getMonth() + 1; // Months are 0-based in JavaScript
-        var day = date.getDate();
-
-        // Pad month and day with leading zeros if necessary
-        month = month < 10 ? '0' + month : month;
-        day = day < 10 ? '0' + day : day;
-
-        var published = year + '-' + month + '-' + day;
-    } else {
-        published = ''
+    const getDate = () => {
+      const date = publishedDate ? new Date(publishedDate) : new Date();
+      const year = date.getFullYear();
+      let month: string | number = date.getMonth() + 1; // Months are 0-based in JavaScript
+      let day: string | number = date.getDate();
+  
+      // Pad month and day with leading zeros if necessary
+      month = month < 10 ? '0' + month : month;
+      day = day < 10 ? '0' + day : day;
+      return { year, month, day };
     }
 
+    const { year, month, day } = getDate();
+    date = year + '/' + month + '/' + day
 
+    if (publishedDate && publishedDate.trim() !== "") {
+      published = year + '-' + month + '-' + day;
+    }
+    
+
+    const sourceUrl = url;
     /* YAML front matter as tags render cleaner with special chars  */
-    const fileContent =
-          '---\n'
-    + '分类: "[[' + `${category}` + ']]"\n'
-    + '作者: ' + authorBrackets + '\n'
-    + '文章标题: "' + title + '"\n'
-    + '源地址: ' + document.URL + '\n'
-    + '创建日: ' + today + '\n'
-    + '已发布: ' + published + '\n'
-    + '主题: ' + `${theme}` + '\n'
-    + '标签: "' + finalTag + '"\n'
-    + '---\n\n'
-    + markdownBody ;
+
+
+    const generateFileContent = () => {
+      // Initialize the YAML front matter
+      let yamlFrontMatter = '---\n';
+
+      // Add the "分类" field if the "category" variable exists
+      if (category) {
+        yamlFrontMatter += '分类: "[[' + `${category}` + ']]"\n';
+      }
+
+      // Add the "主题" field if the "theme" variable exists
+      if (theme) {
+        yamlFrontMatter += '主题: ' + `${theme}` + '\n';
+      }
+
+      // Add the "tag" field if the "finalTag" variable exists
+      if (finalTag) {
+        yamlFrontMatter += 'tag: "' + finalTag + '"\n';
+      }
+
+      // Add the "作者" field if the "authorBrackets" variable exists
+      if (authorBrackets) {
+        yamlFrontMatter += '作者: ' + authorBrackets + '\n';
+      }
+
+      // Add the "文章标题" field if the "title" variable exists
+      if (title) {
+        yamlFrontMatter += '文章标题: "' + title + '"\n';
+      }
+
+      // Add the "源地址" field if the "sourceUrl" variable exists
+      if (sourceUrl) {
+        yamlFrontMatter += '源地址: ' + sourceUrl + '\n';
+      }
+
+      // Add the "创建日" field if the "date" variable exists
+      if (date) {
+        yamlFrontMatter += '创建日: ' + date + '\n';
+      }
+
+      // Add the "已发布" field if the "published" variable exists
+      if (published) {
+        yamlFrontMatter += '已发布: ' + published + '\n';
+      }
+
+      // End the YAML front matter
+      yamlFrontMatter += '---\n\n';
+
+      // Combine the YAML front matter and markdown body to create the file content
+      const fileContent = yamlFrontMatter + markdownBody;
+
+      return fileContent;
+    }
+
+    const fileContent = generateFileContent();
+
+    // const fileContent =
+    //       '---\n'
+    // + '分类: "[[' + `${category}` + ']]"\n'
+    // + '主题: ' + `${theme}` + '\n'
+    // + 'tag: "' + finalTag + '"\n'
+    // + '作者: ' + authorBrackets + '\n'
+    // + '文章标题: "' + title + '"\n'
+    // + '源地址: ' + sourceUrl + '\n'
+    // + '创建日: ' + date + '\n'
+    // + '已发布: ' + published + '\n'
+    // + '---\n\n'
+    // + markdownBody ;
+    
 
     document.location.href = "obsidian://new?"
         + "file=" + encodeURIComponent(folder + fileName)

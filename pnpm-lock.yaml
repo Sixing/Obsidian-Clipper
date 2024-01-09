@@ -1,12 +1,14 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@ant-design/icons': ^5.2.6
   '@ianvs/prettier-plugin-sort-imports': 4.1.1
   '@types/chrome': 0.0.251
   '@types/node': 20.9.0
   '@types/react': 18.2.37
   '@types/react-dom': 18.2.15
   antd: ^5.12.2
+  dayjs: ^1.11.10
   jsdom: ^23.0.1
   plasmo: 0.84.0
   prettier: 3.0.3
@@ -16,7 +18,9 @@ specifiers:
   typescript: 5.2.2
 
 dependencies:
+  '@ant-design/icons': 5.2.6_biqbaboplfbrettd7655fr4n2y
   antd: 5.12.2_biqbaboplfbrettd7655fr4n2y
+  dayjs: 1.11.10
   jsdom: 23.0.1
   plasmo: 0.84.0_biqbaboplfbrettd7655fr4n2y
   react: 18.2.0

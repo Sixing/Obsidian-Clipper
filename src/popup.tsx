@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react"
-import { ConfigProvider, Flex, Switch, Divider, Form, Input, Button} from "antd";
+import { ConfigProvider, Flex, Switch, Divider, Form, Input, Button, DatePicker, Collapse, theme} from "antd";
+import { CaretRightOutlined } from '@ant-design/icons';
+import dayjs from 'dayjs';
 
 function IndexPopup() {
   const [data, setData] = useState(false);
@@ -19,6 +21,7 @@ function IndexPopup() {
 
   const handleSave = () => {
     const data =form.getFieldsValue();
+    data.date = dayjs().format('YYYY-MM-DD HH:mm')
     chrome.storage.sync.set({'obsidianClipper': data});
   }
 
@@ -40,7 +43,35 @@ function IndexPopup() {
   useEffect(() => {
     checkStatus() // 检查功能是否开启
   }, [])
-  
+
+  const { token } = theme.useToken();
+
+  const getItems = (style) => [{
+    key: '1',
+    label: '其他配置',
+    style,
+    children: <>
+      <Form.Item label="作者" name={'authorBrackets'} style={{marginBottom: 12, color: '#666', fontWeight: 500}}>
+        <Input placeholder="输入作者" />
+      </Form.Item>
+      <Form.Item label="文章标题" name={'title'} style={{marginBottom: 12, color: '#666', fontWeight: 500}}>
+        <Input placeholder="输入文章标题" />
+      </Form.Item>
+      <Form.Item label="源地址" name={'url'} style={{marginBottom: 12, color: '#666', fontWeight: 500}}>
+        <Input placeholder="输入源地址" />
+      </Form.Item>
+      {/* <Form.Item label="创建日" name={'date'} style={{marginBottom: 12, color: '#666', fontWeight: 500}}>
+        <DatePicker defaultValue={dayjs(undefined, dateFormat)} format={dateFormat} />
+      </Form.Item> */}
+    </>
+  }];
+
+  const panelStyle: React.CSSProperties = {
+    marginBottom: 24,
+    background: token.colorFillAlter,
+    borderRadius: token.borderRadiusLG,
+    border: 'none',
+  };
 
   return (
     <ConfigProvider
@@ -76,7 +107,7 @@ function IndexPopup() {
               { `开启网页剪切` }
             </Flex>
           </Flex>
-          <Divider orientation="left" plain>{'自定义配置'}</Divider>
+          <Divider orientation="left" plain>{'导入配置'}</Divider>
           <Form
             labelCol={{ span: 2 }}
             wrapperCol={{ span: 4 }}
@@ -94,6 +125,8 @@ function IndexPopup() {
               <Form.Item label="标签" name={'tag'} style={{marginBottom: 12, color: '#666', fontWeight: 500}}>
                 <Input placeholder="输入标签" />
               </Form.Item>
+              <Collapse items={getItems(panelStyle)} bordered={false} expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />} style={{ background: token.colorBgContainer }}>
+              </Collapse>
               <Form.Item>
                 <Button type="primary" onClick={handleSave}>保存</Button>
                 <Button style={{ marginLeft: 8}} type="primary" onClick={handleCut}>剪裁网页内容</Button>
