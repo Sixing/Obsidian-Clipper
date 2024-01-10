@@ -120,7 +120,7 @@ function IndexPopup() {
                 <Input placeholder="输入分类" />
               </Form.Item>
               <Form.Item label="主题" name={'theme'} style={{marginBottom: 12, color: '#666', fontWeight: 500}}>
-                <Input placeholder="输入主体" />
+                <Input placeholder="输入主题" />
               </Form.Item>
               <Form.Item label="标签" name={'tag'} style={{marginBottom: 12, color: '#666', fontWeight: 500}}>
                 <Input placeholder="输入标签" />
