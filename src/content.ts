@@ -1,15 +1,24 @@
 import TurndownService from 'Turndown';
 import Readability from '@tehshrike/readability'
+import cn from "./utils/locale/cn.json";
+import en from "./utils/locale/en.json";
+
+let Lang = {};
 
 const loadResource = async () => {
     const vault = "";
     let date, published;
-    const { obsidianClipper } = await chrome.storage.sync.get(['obsidianClipper']);
+    const { obsidianClipper, lang } = await chrome.storage.sync.get(['obsidianClipper', 'lang']);
     const { category, tag, theme, authorBrackets: inputAuthor, title: inputTitle, url = location.href } = obsidianClipper; // 分类，标签，主题
     /* Optional folder name such as "Clippings/" */
     const folder =  `${category}/` || "Clippings/";
     const regex = /(https?:\/\/)?(www\.)?(youtube\.com)\/watch\?v=([a-zA-Z0-9_-]+)/;
     const sourceUrl = url;
+    Lang = lang === 'cn' ? cn : en
+
+    const t = (key: string) => {
+        return Lang[key]
+    }
 
     /* Optional tags  */
     let tags = "clippings";
@@ -138,12 +147,12 @@ const loadResource = async () => {
 
       // Add the "分类" field if the "category" variable exists
       if (category) {
-        yamlFrontMatter += '分类: "[[' + `${category}` + ']]"\n';
+        yamlFrontMatter += t('仓库/文件夹') + ': "[[' + `${category}` + ']]"\n';
       }
 
       // Add the "主题" field if the "theme" variable exists
       if (theme) {
-        yamlFrontMatter += '主题: ' + `${theme}` + '\n';
+        yamlFrontMatter += t('主题') + `: ${theme}` + '\n';
       }
 
       // Add the "tag" field if the "finalTag" variable exists
@@ -153,27 +162,27 @@ const loadResource = async () => {
 
       // Add the "作者" field if the "authorBrackets" variable exists
       if (authorBrackets) {
-        yamlFrontMatter += '作者: ' + authorBrackets + '\n';
+        yamlFrontMatter += t('作者') + ': ' + authorBrackets + '\n';
       }
 
       // Add the "文章标题" field if the "title" variable exists
       if (title) {
-        yamlFrontMatter += '文章标题: "' + title + '"\n';
+        yamlFrontMatter += t('文章标题') + ': "' + title + '"\n';
       }
 
       // Add the "源地址" field if the "sourceUrl" variable exists
       if (sourceUrl) {
-        yamlFrontMatter += '源地址: ' + sourceUrl + '\n';
+        yamlFrontMatter += t('源地址') + ': ' + sourceUrl + '\n';
       }
 
       // Add the "创建日" field if the "date" variable exists
       if (date) {
-        yamlFrontMatter += '创建日: ' + date + '\n';
+        yamlFrontMatter += t('创建日') + ': ' + date + '\n';
       }
 
       // Add the "已发布" field if the "published" variable exists
       if (published) {
-        yamlFrontMatter += '已发布: ' + published + '\n';
+        yamlFrontMatter += t('已发布') + ': ' + published + '\n';
       }
 
       // End the YAML front matter

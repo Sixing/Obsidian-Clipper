@@ -1,7 +1,7 @@
 {
   "name": "obsidian-clipper",
   "displayName": "Obsidian clipper",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A small tool can import web page content into Obsidian",
   "author": "sx.ma223@gmail.com",
   "scripts": {
@@ -14,10 +14,13 @@
     "@tehshrike/readability": "^0.2.0",
     "antd": "^5.12.2",
     "dayjs": "^1.11.10",
+    "i18next": "^23.7.18",
     "jsdom": "^23.0.1",
     "plasmo": "0.84.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-i18next": "^14.0.1",
+    "react-intl-universal": "^2.9.1",
     "turndown": "^7.1.2"
   },
   "devDependencies": {
@@ -47,6 +50,15 @@
       "storage",
       "contextMenus",
       "activeTab"
-    ]
+    ],
+    "commands": {
+      "import-article": {
+        "suggested_key": {
+          "default": "Ctrl+X",
+          "mac": "Command+X"
+        },
+        "description": "Import web content"
+      }
+    }
   }
 }

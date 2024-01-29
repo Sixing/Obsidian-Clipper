@@ -1,0 +1,23 @@
+{
+    "作者": "Author",
+    "输入作者": "Please input author",
+    "文章标题": "Title",
+    "输入文章标题": "Please input article author",
+    "源地址": "Source",
+    "输入源地址": "Please input source url",
+    "网页助手": "web clipper",
+    "开启网页剪切": "Enable web clipper",
+    "导入配置": "Import config",
+    "仓库/文件夹": "Vault/Folder",
+    "仓库说明": "Using '/' to seperate Vault & Folder, for example: Vault/Folder1/Folder2",
+    "输入分类": "Please input category",
+    "主题": "Theme",
+    "输入主题": "Please input theme",
+    "标签": "Tags",
+    "输入标签": "Please input tag",
+    "保存": "Save",
+    "剪裁网页内容": "Import web content",
+    "其他配置": "More",
+    "整页导入Obsidian": "Import whole page to Obsidian",
+    "导入选择部分到Obsidian": "Import selected part to Obsidian"
+}
