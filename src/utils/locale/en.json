@@ -5,6 +5,8 @@
     "输入文章标题": "Please input article author",
     "源地址": "Source",
     "输入源地址": "Please input source url",
+    "创建日": "Create date",
+    "已发布": "Published",
     "网页助手": "web clipper",
     "开启网页剪切": "Enable web clipper",
     "导入配置": "Import config",
@@ -15,9 +17,12 @@
     "输入主题": "Please input theme",
     "标签": "Tags",
     "输入标签": "Please input tag",
-    "保存": "Save",
+    "保存": "Save configration",
     "剪裁网页内容": "Import web content",
     "其他配置": "More",
     "整页导入Obsidian": "Import whole page to Obsidian",
-    "导入选择部分到Obsidian": "Import selected part to Obsidian"
+    "导入选择部分到新仓库": "Import selected part to new note",
+    "导入选择部分到已有的仓库": "Import selected part to exist note",
+    "保存到Obsidian": "Save to Obsidian",
+    "超出长度": "Windows system does not allow exporting content longer than the limit (2048 characters), please try reducing the content and then exporting again."
 }

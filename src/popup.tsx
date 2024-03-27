@@ -21,7 +21,7 @@ function IndexPopup() {
   const [data, setData] = useState(false)
   const [form] = Form.useForm();
   const [lang, setLang] = useState(i18n.language);
-
+  const isWindows = navigator.userAgent.includes("Windows")
 
   const langSwitch = () => {
     let lang = ''
@@ -46,7 +46,8 @@ function IndexPopup() {
 
   const sendMessage = (enabled) => {
     chrome.runtime.sendMessage({
-      enabled
+      enabled,
+      isWindows
     })
   }
 
@@ -58,7 +59,7 @@ function IndexPopup() {
 
   const handleCut = async () => {
     let queryOptions = { active: true, currentWindow: true }
-    let [tab] = await chrome.tabs.query(queryOptions)
+    let [tab] = await chrome.tabs.query(queryOptions);
     chrome.tabs.sendMessage(tab.id, { type: "aciton" })
   }
 

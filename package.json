@@ -1,7 +1,7 @@
 {
   "name": "obsidian-clipper",
   "displayName": "Obsidian clipper",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "A small tool can import web page content into Obsidian",
   "author": "sx.ma223@gmail.com",
   "scripts": {

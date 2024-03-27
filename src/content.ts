@@ -2,13 +2,14 @@ import TurndownService from 'Turndown';
 import Readability from '@tehshrike/readability'
 import cn from "./utils/locale/cn.json";
 import en from "./utils/locale/en.json";
+import { message } from "antd"
 
 let Lang = {};
 
-const loadResource = async () => {
+const loadResource = async (importToExistValue) => {
     const vault = "";
     let date, published;
-    const { obsidianClipper, lang } = await chrome.storage.sync.get(['obsidianClipper', 'lang']);
+    const { obsidianClipper = {}, lang } = await chrome.storage.sync.get(['obsidianClipper', 'lang']);
     const { category, tag, theme, authorBrackets: inputAuthor, title: inputTitle, url = location.href } = obsidianClipper; // 分类，标签，主题
     /* Optional folder name such as "Clippings/" */
     const folder =  `${category}/` || "Clippings/";
@@ -69,9 +70,9 @@ const loadResource = async () => {
             windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'];
 
         if (windowsPlatforms.indexOf(platform) !== -1) {
-            fileName = fileName.replace(':', '').replace(/[/\\?%*|"<>]/g, '-');
+            fileName = fileName.replace(/:/g, '').replace(/[/\\?%*|"<>]/g, '-');
         } else {
-            fileName = fileName.replace(':', '').replace(/\//g, '-').replace(/\\/g, '-');
+            fileName = fileName.replace(/:/g, '').replace(/\//g, '-').replace(/\\/g, '-');
         }
         return fileName;
     }
@@ -141,86 +142,49 @@ const loadResource = async () => {
     }
     
     /* YAML front matter as tags render cleaner with special chars  */
-    const generateFileContent = () => {
-      // Initialize the YAML front matter
-      let yamlFrontMatter = '---\n';
+    const fileContent = importToExistValue ? `\n${markdownBody}` : [
+      '---',
+      category ? `${t('仓库/文件夹')}: "[[${category}]]"` : null,
+      theme ? `${t('主题')}: ${theme}` : null,
+      finalTag ? `tag: "${finalTag}"` : null,
+      authorBrackets ? `${t('作者')}: ${authorBrackets}` : null,
+      title ? `${t('文章标题')}: "${title}"` : null,
+      sourceUrl ? `${t('源地址')}: ${sourceUrl}` : null,
+      published ? `${t('已发布')}: ${published}` : `${t('创建日')}: ${date}`,
+      '---',
+      '',
+      markdownBody
+    ].filter(line => line !== null).join('\n');
 
-      // Add the "分类" field if the "category" variable exists
-      if (category) {
-        yamlFrontMatter += t('仓库/文件夹') + ': "[[' + `${category}` + ']]"\n';
-      }
-
-      // Add the "主题" field if the "theme" variable exists
-      if (theme) {
-        yamlFrontMatter += t('主题') + `: ${theme}` + '\n';
-      }
-
-      // Add the "tag" field if the "finalTag" variable exists
-      if (finalTag) {
-        yamlFrontMatter += 'tag: "' + finalTag + '"\n';
-      }
-
-      // Add the "作者" field if the "authorBrackets" variable exists
-      if (authorBrackets) {
-        yamlFrontMatter += t('作者') + ': ' + authorBrackets + '\n';
-      }
-
-      // Add the "文章标题" field if the "title" variable exists
-      if (title) {
-        yamlFrontMatter += t('文章标题') + ': "' + title + '"\n';
-      }
-
-      // Add the "源地址" field if the "sourceUrl" variable exists
-      if (sourceUrl) {
-        yamlFrontMatter += t('源地址') + ': ' + sourceUrl + '\n';
-      }
-
-      // Add the "创建日" field if the "date" variable exists
-      if (date) {
-        yamlFrontMatter += t('创建日') + ': ' + date + '\n';
-      }
-
-      // Add the "已发布" field if the "published" variable exists
-      if (published) {
-        yamlFrontMatter += t('已发布') + ': ' + published + '\n';
-      }
-
-      // End the YAML front matter
-      yamlFrontMatter += '---\n\n';
-
-      // Combine the YAML front matter and markdown body to create the file content
-      const fileContent = yamlFrontMatter + markdownBody;
-  
-      return fileContent;
-    }
-
-    const fileContent = generateFileContent();
-
-    // const fileContent =
-    //       '---\n'
-    // + '分类: "[[' + `${category}` + ']]"\n'
-    // + '主题: ' + `${theme}` + '\n'
-    // + 'tag: "' + finalTag + '"\n'
-    // + '作者: ' + authorBrackets + '\n'
-    // + '文章标题: "' + title + '"\n'
-    // + '源地址: ' + sourceUrl + '\n'
-    // + '创建日: ' + date + '\n'
-    // + '已发布: ' + published + '\n'
-    // + '---\n\n'
-    // + markdownBody ;
-    
-
-    document.location.href = "obsidian://new?"
+    // for Windows, custome protocol has 2048 limit for url
+    let obsidianUrl;
+    if (navigator.userAgent.includes("Windows")) {
+        obsidianUrl = "obsidian://new?"
         + "file=" + encodeURIComponent(folder + fileName)
         + "&content=" + encodeURIComponent(fileContent)
-        + vaultName ;
+        + "&append"
+        + vaultName;
+        if (obsidianUrl.length > 2048) {
+            message.warning(t('超出长度'));
+            return;
+        }
+    } else {
+        obsidianUrl = "obsidian://new?"
+        + "file=" + encodeURIComponent(folder + fileName)
+        + "&content=" + encodeURIComponent(fileContent)
+        + "&append"
+        + vaultName;
+        document.location.href = obsidianUrl
+    }
+    document.location.href = obsidianUrl
 }
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     sendResponse('received');
-    if (request.type === 'aciton') {
+    const { type, importToExistValue = false } = request;
+    if (type === 'aciton') {
         try {
-            loadResource();
+            loadResource(importToExistValue);
         } catch(e) {
             console.log('clipboard error', e)
         }
